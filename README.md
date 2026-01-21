@@ -31,11 +31,11 @@ The `job_id` (UUID) correlates requests end-to-end:
 
 ## Why S3 Polling
 
-The original design used an SQS response queue. This has a concurrency flaw: under shared response queue consumption, request A can receive request B's result.
+The original design used an SQS response queue. This has a concurrency flaw: under shared response queue consumption, results can be mismatched across concurrent requests.
 
 **Current implementation:** Worker writes to S3 with `key = job_id`. API polls S3 for that specific key—no shared-queue contention.
 
-The response queue exists for legacy/debug purposes. The API does not consume it.
+The response queue is legacy/debug only. The API does not consume it for result delivery.
 
 ## Quick Start
 
@@ -60,6 +60,11 @@ Upload OK, job_id=..., status=done
 Result: ...
 PASS
 ```
+
+**LocalStack S3 keys:**
+
+- Input: `s3://input-bucket/{job_id}_{filename}`
+- Output: `s3://output-bucket/{job_id}`
 
 ## API
 
@@ -91,9 +96,23 @@ Poll for result.
 curl http://localhost:8000/status/abc-123
 ```
 
+**Response (200):**
+
+```json
+{"job_id": "abc-123", "status": "done", "result": "Person Name"}
+```
+
+**Response (202):**
+
+```json
+{"job_id": "abc-123", "status": "pending"}
+```
+
 ### GET /health
 
-Returns `200 {"status": "ok"}`.
+```json
+{"status": "ok"}
+```
 
 ---
 
