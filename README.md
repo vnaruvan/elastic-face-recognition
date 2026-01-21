@@ -10,7 +10,7 @@ This project was built and deployed on AWS (Spring 2025) as a cloud computing as
 
 ## Architecture
 
-```
+```text
 ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
 │  Client │────▶│   API   │────▶│   SQS   │────▶│ Worker  │
 └─────────┘     └────┬────┘     └─────────┘     └────┬────┘
@@ -20,7 +20,7 @@ This project was built and deployed on AWS (Spring 2025) as a cloud computing as
                                └─────────┘
 ```
 
-### Correlation ID
+## Correlation ID
 
 The `job_id` (UUID) correlates requests end-to-end:
 
@@ -29,7 +29,7 @@ The `job_id` (UUID) correlates requests end-to-end:
 - **S3 output key:** `{job_id}`
 - **Worker logs:** tagged with `job_id`
 
-### Why S3 Polling
+## Why S3 Polling
 
 The original design used an SQS response queue. This has a concurrency flaw: under shared response queue consumption, request A can receive request B's result.
 
@@ -53,7 +53,7 @@ make smoke
 
 **Expected output:**
 
-```
+```text
 Smoke test against http://localhost:8000
 Health check OK
 Upload OK, job_id=..., status=done
@@ -72,11 +72,13 @@ curl -F "inputFile=@photo.jpg" http://localhost:8000/
 ```
 
 **Response (200):**
+
 ```json
 {"job_id": "abc-123", "status": "done", "result": "Person Name"}
 ```
 
 **Response (202):**
+
 ```json
 {"job_id": "abc-123", "status": "pending"}
 ```
@@ -161,7 +163,7 @@ make down          # Cleanup
 
 ## Project Structure
 
-```
+```text
 ├── core/                  # Config, AWS clients
 ├── web-tier/server.py     # Flask API
 ├── app-tier/backend.py    # Worker
