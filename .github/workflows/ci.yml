@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest
+          pip install -r requirements.txt
+          
+      - name: Lint with ruff
+        run: ruff check .
+        continue-on-error: true  # don't fail CI on lint warnings initially
+        
+      - name: Run unit tests
+        run: pytest tests/ -v
+        
+  # Docker integration test - optional, only on main branch
+  # Uncomment when stable
+  # integration:
+  #   runs-on: ubuntu-latest
+  #   needs: lint-and-test
+  #   if: github.ref == 'refs/heads/main'
+  #   
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     
+  #     - name: Start services
+  #       run: docker compose up -d --build
+  #       
+  #     - name: Wait for services
+  #       run: sleep 15
+  #       
+  #     - name: Run smoke test
+  #       run: |
+  #         pip install requests
+  #         python scripts/smoke_test.py
+  #         
+  #     - name: Cleanup
+  #       if: always()
+  #       run: docker compose down -v
+

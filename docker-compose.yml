@@ -1,0 +1,55 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs
+      - DEFAULT_REGION=us-east-1
+      - DEBUG=1
+    volumes:
+      - "./scripts/localstack_init.sh:/etc/localstack/init/ready.d/init.sh"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - S3_IN_BUCKET=input-bucket
+      - S3_OUT_BUCKET=output-bucket
+      - SQS_REQ_QUEUE_NAME=request-queue
+      - SQS_RESP_QUEUE_NAME=response-queue
+    depends_on:
+      localstack:
+        condition: service_healthy
+    command: ["python", "web-tier/server.py"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - S3_IN_BUCKET=input-bucket
+      - S3_OUT_BUCKET=output-bucket
+      - SQS_REQ_QUEUE_NAME=request-queue
+      - SQS_RESP_QUEUE_NAME=response-queue
+    depends_on:
+      localstack:
+        condition: service_healthy
+    command: ["python", "app-tier/backend.py"]
+
