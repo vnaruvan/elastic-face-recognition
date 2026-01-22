@@ -4,7 +4,7 @@ Async face recognition pipeline with SQS job queue and S3 storage. LocalStack de
 
 ## Background
 
-This project was built and deployed on AWS (Spring 2025) as a cloud computing assignment. The AWS resources were torn down after project completion. The infrastructure was torn down after completion to avoid ongoing AWS costs.
+This project was originally built and deployed on AWS. The AWS resources were torn down after project completion. The infrastructure was torn down after completion to avoid ongoing AWS costs.
 
 **To run locally:** [LocalStack](https://localstack.cloud/) emulates AWS services, allowing full architecture validation without an AWS account.
 
@@ -202,7 +202,7 @@ make down          # Cleanup
 
 ## Runnable Path
 
-LocalStack is the supported demo. AWS resources no longer exist.
+LocalStack is the supported demo. AWS resources no longer exist due to cost.
 
 ```bash
 cp .env.example .env
