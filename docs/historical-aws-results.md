@@ -56,11 +56,9 @@ Measured during original AWS deployment:
 
 **LocalStack demo:** Results written to S3 with `key = job_id`. API polls S3 directly—no shared-queue contention.
 
-## Limitations
+## Notes:
 
 - AWS resources torn down
-- Performance numbers not reproducible
-- Autoscaling controller was functional but not production-grade
 - Response queue approach had concurrency flaw (fixed in LocalStack demo)
 
 ## Reproducible Alternative
