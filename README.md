@@ -4,7 +4,7 @@ Async face recognition pipeline with SQS job queue and S3 storage. LocalStack de
 
 ## Background
 
-This project was built and deployed on AWS (Spring 2025) as a cloud computing assignment. The AWS resources were torn down after project completion.
+This project was built and deployed on AWS (Spring 2025) as a cloud computing assignment. The AWS resources were torn down after project completion. The infrastructure was torn down after completion to avoid ongoing AWS costs.
 
 **To run locally:** [LocalStack](https://localstack.cloud/) emulates AWS services, allowing full architecture validation without an AWS account.
 
@@ -31,7 +31,7 @@ The `job_id` (UUID) correlates requests end-to-end:
 
 ## Why S3 Polling
 
-The original design used an SQS response queue. This has a concurrency flaw: under shared response queue consumption, results can be mismatched across concurrent requests.
+The original design used an SQS response queue. This creates a shared-queue race under concurrency: results can be mismatched across concurrent requests.
 
 **Current implementation:** Worker writes to S3 with `key = job_id`. API polls S3 for that specific key—no shared-queue contention.
 
@@ -50,6 +50,7 @@ make smoke
 - End-to-end async flow (SQS → worker → S3)
 - Correlation via `job_id` (no cross-request mixups)
 - Failure handling (malformed message, missing input, subprocess timeout)
+- Reproducible validation without AWS billing (autoscaling documented as historical)
 
 **Expected output:**
 
@@ -113,6 +114,12 @@ curl http://localhost:8000/status/abc-123
 ```json
 {"status": "ok"}
 ```
+
+---
+
+## Elasticity Note
+
+EC2 autoscaling (0–15 workers based on SQS queue depth) was part of the original AWS deployment. The LocalStack demo reproduces the queue-driven pipeline and correlation correctness, but does not include autoscaling.
 
 ---
 
