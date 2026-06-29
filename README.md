@@ -1,4 +1,4 @@
-# Elastic Face Recognition
+# Distributed Image Processing Pipeline
 
 Async face recognition pipeline with SQS job queue and S3 storage. LocalStack demo is runnable; original AWS deployment is documented.
 
